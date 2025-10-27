@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.entity.Entity;
@@ -36,12 +37,12 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
     public S geckolib$captureDataForArmorLayer(T entity, float partialTick, Operation<S> original) {
         S renderState = original.call(entity, partialTick);
 
-        if (renderState instanceof HumanoidRenderState && (Object)this instanceof LivingEntityRenderer livingRenderer) {
+        if (renderState instanceof AvatarRenderState && (Object)this instanceof LivingEntityRenderer livingRenderer) {
             for (Object layer : livingRenderer.layers) {
                 if (layer instanceof HumanoidArmorLayer armorLayer) {
                     GeoArmorRenderer.captureRenderStates(geckolib$castRenderState(renderState), (LivingEntity)entity, partialTick,
                                                          (renderState2, slot) -> armorLayer.getArmorModel(renderState2, slot),
-                                                         slot -> geckolib$castRenderState(slot == EquipmentSlot.HEAD ? renderState : original.call(entity, partialTick)));
+                                                         slot -> geckolib$castRenderState(renderState));
 
                     break;
                 }
@@ -55,7 +56,7 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
      * Sugar method for blind-casting RenderStates to GeckoLib-supported generic types
      */
     @Unique
-    private static <R extends HumanoidRenderState & GeoRenderState> R geckolib$castRenderState(EntityRenderState renderState) {
+    private static <R extends AvatarRenderState & GeoRenderState> R geckolib$castRenderState(EntityRenderState renderState) {
         return (R)renderState;
     }
 }
